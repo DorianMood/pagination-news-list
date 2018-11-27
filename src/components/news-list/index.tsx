@@ -2,16 +2,23 @@ import * as React from 'react';
 import { News } from 'src/models/News';
 import NewsItem from '../news-item';
 import Pagination from '../pagination';
+import { User } from 'src/models';
+import * as reducer from '../../reducers';
+import { connect } from 'react-redux';
 
 const PAGE_SIZE = 10;
 
-interface IState {
-    news: News[]
-    page: number
+interface IProps {
+    currentUser: User;
 }
 
-class NewsList extends React.Component<{}, IState> {
-    public constructor(props: {}) {
+interface IState {
+    news: News[];
+    page: number;
+}
+
+class NewsList extends React.Component<IProps, IState> {
+    public constructor(props: IProps) {
         super(props);
 
         this.state = {
@@ -19,6 +26,7 @@ class NewsList extends React.Component<{}, IState> {
                 {
                     author: { userName: "Nikita", userId: "123" },
                     date: "123",
+                    id: 1,
                     likes: [],
                     text: "text",
                     title: "title"
@@ -26,6 +34,7 @@ class NewsList extends React.Component<{}, IState> {
                 {
                     author: { userName: "Nikita", userId: "123" },
                     date: "123",
+                    id: 2,
                     likes: [],
                     text: "text",
                     title: "title"
@@ -33,6 +42,7 @@ class NewsList extends React.Component<{}, IState> {
                 {
                     author: { userName: "Nikita", userId: "123" },
                     date: "123",
+                    id: 3,
                     likes: [],
                     text: "text",
                     title: "title"
@@ -57,7 +67,8 @@ class NewsList extends React.Component<{}, IState> {
                             userName: element['userId'],
                             userId: element['userId']
                         },
-                        likes: []
+                        likes: [],
+                        id: element['id']
                     }
                     newsList.push(news);
                 }
@@ -73,16 +84,35 @@ class NewsList extends React.Component<{}, IState> {
 
     public onPostLike = (postId: number) => {
         console.log('like');
+        const news: News[] = this.state.news.map((el, i) =>
+            el.id === postId ? {
+                ...el,
+                likes: el.likes.concat(this.props.currentUser)
+                } : el
+        );
+        this.setState({
+            news
+        })
     }
 
     public render() {
+        const compareUsers = (user1: User, index: number) => {
+            return user1.userId === this.props.currentUser.userId ? true : false;
+        }
         return (
             <>
                 {this.state.news
                     .slice(
                         this.state.page * PAGE_SIZE,
                         (this.state.page + 1) * PAGE_SIZE)
-                    .map((el, i) => <NewsItem news={el} key={i} />)}
+                    .map((el, i) =>
+                        <NewsItem
+                            news={el}
+                            key={i}
+                            liked={el.likes.find(compareUsers) !== undefined}
+                            onLike={this.onPostLike}
+                        />
+                    )}
                 <Pagination
                     active={this.state.page}
                     max={Math.ceil(this.state.news.length / PAGE_SIZE)}
@@ -92,4 +122,10 @@ class NewsList extends React.Component<{}, IState> {
     }
 }
 
-export default NewsList;
+const mapStateToProps = (store: reducer.IState) => {
+    return {
+        currentUser: store.currentUser
+    }
+}
+
+export default connect(mapStateToProps, {})(NewsList);
