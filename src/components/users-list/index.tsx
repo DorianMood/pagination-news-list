@@ -16,10 +16,23 @@ class UsersList extends React.Component<{}, IState> {
                 { userName: "Nikita", userId: "123" }
             ]
         }
+        this.fetchUsers();
     }
 
     public fetchUsers = () => {
-        console.log(1);
+        fetch('https://jsonplaceholder.typicode.com/users')
+            .then(data => data.json())
+            .then(json => {
+                const users: User[] = [];
+                for (const element of json) {
+                    const user: User = {
+                        userId: element['id'],
+                        userName: element['username']
+                    }
+                    users.push(user);
+                }
+                this.setState({...this.state, users});
+            });
     }
 
     public render() {

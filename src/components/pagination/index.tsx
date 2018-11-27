@@ -21,7 +21,7 @@ class Pagination extends React.Component<IProps> {
             elements.push(
                 <li className={
                     i === active ?
-                        "active" : "waves-effect"}>
+                        "active" : "waves-effect"} key={i}>
                     <a href="#!" onClick={this.click.bind(this, i)}>{i + 1}</a>
                 </li>
             );

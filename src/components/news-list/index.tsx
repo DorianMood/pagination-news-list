@@ -71,6 +71,10 @@ class NewsList extends React.Component<{}, IState> {
         this.setState({ ...this.state, page })
     }
 
+    public onPostLike = (postId: number) => {
+        console.log('like');
+    }
+
     public render() {
         return (
             <>
